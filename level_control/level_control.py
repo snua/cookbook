@@ -48,9 +48,10 @@ Kc = 0.05 # proportional gain
 tau_I = 5 # integral reset time
 
 # image settings
-freq = 10 # frequency of of the saved images
+freq = 2 # frequency of of the saved images
 images = [] # initialise placeholder for images to be converted to video
 
+ti = 0 # increment for file names
 for t in range(1,n_step):
         
     # calculate level and error from previous time step    
@@ -107,11 +108,12 @@ for t in range(1,n_step):
         ax2.set_ylim(0,H)
         ax2.legend()
         plt.suptitle('Water tank level PID control',color='#657b83',fontsize=15)
-                     
+        
+        ti = ti + 1
         # save the figures
         plt.subplots_adjust(left=0.02, bottom=0.1, right=0.98, top=0.9, wspace=0.02, hspace=0.02)
-        file_name = 'level_control_'+str(t)+'.png'
-        plt.savefig(file_name,facecolor=fig.get_facecolor(),pad_inches=-1)
+        file_name = 'level_control_'+str(ti).zfill(4)+'.png'
+        plt.savefig(file_name,facecolor=fig.get_facecolor(),pad_inches=-1, dpi=150)
         plt.close('all')
         
         # load figure into images
@@ -120,6 +122,12 @@ for t in range(1,n_step):
 # save images as gif   
 imageio.mimsave('level_control.gif', images)
 
+# save images as video
+os.system('ffmpeg -framerate 25 -vb 50M -i level_control_%04d.png level_control.avi') 
+
 # delete the redundant images used to create the gif
 for f in glob.glob("level_control_*.png"):
-    os.remove(f)      
+    os.remove(f)   
+
+
+   
